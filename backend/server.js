@@ -5,23 +5,37 @@ const cors = require("cors");
 
 const app = express();
 
-/* ================= MIDDLEWARE ================= */
+/* ================= CORS CONFIG ================= */
 const allowedOrigins = [
   "http://localhost:5173",
   "https://hris-project-5gvzo66b1-visionary-dynamics-projects.vercel.app"
 ];
 
+// 🔥 Allow all Vercel deployments dynamically
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true; // allow Postman, curl
+  if (allowedOrigins.includes(origin)) return true;
+  if (origin.endsWith(".vercel.app")) return true; // 🔥 important
+  return false;
+};
+
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("CORS not allowed"));
+      callback(new Error("CORS not allowed: " + origin));
     }
   },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
+// 🔥 IMPORTANT: handle preflight requests
+app.options("*", cors());
+
+/* ================= MIDDLEWARE ================= */
 app.use(express.json());
 
 console.log("🚀 SERVER FILE LOADED");
