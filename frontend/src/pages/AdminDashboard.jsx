@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import { getDashboardStats } from "../services/api"; // ✅ use API service
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -22,14 +22,9 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/dashboard/stats",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          }
-        }
-      );
+      const token = localStorage.getItem("token");
+
+      const res = await getDashboardStats(token); // ✅ FIXED
 
       setStats(res.data);
     } catch (err) {
@@ -61,11 +56,11 @@ export default function AdminDashboard() {
 
             <div className="flex flex-wrap gap-4">
               <button
-  onClick={() => navigate("/add-employee")}
-  className="bg-blue-600 text-white px-4 py-2 rounded"
->
-  Add Employee
-</button>
+                onClick={() => navigate("/add-employee")}
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Add Employee
+              </button>
 
               <button
                 onClick={() => navigate("/leaves")}

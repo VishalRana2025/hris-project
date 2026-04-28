@@ -114,3 +114,7 @@ export const updateJob = (id, d, t) =>
   put("/org/job", id, d, t);
 export const deleteJob = (id, t) =>
   del("/org/job", id, t);
+
+// ================= DASHBOARD =================
+export const getDashboardStats = (t) =>
+  API.get("/dashboard/stats", auth(t));
