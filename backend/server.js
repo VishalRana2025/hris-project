@@ -6,34 +6,25 @@ const cors = require("cors");
 const app = express();
 
 /* ================= CORS CONFIG ================= */
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://hris-project-5gvzo66b1-visionary-dynamics-projects.vercel.app"
-];
-
-// 🔥 Allow all Vercel deployments dynamically
-const isAllowedOrigin = (origin) => {
-  if (!origin) return true; // allow Postman, curl
-  if (allowedOrigins.includes(origin)) return true;
-  if (origin.endsWith(".vercel.app")) return true; // 🔥 important
-  return false;
-};
-
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    if (isAllowedOrigin(origin)) {
+    if (
+      !origin || // allow Postman / curl
+      origin.includes("localhost") ||
+      origin.includes("vercel.app") // 🔥 allow all Vercel deployments
+    ) {
       callback(null, true);
     } else {
       callback(new Error("CORS not allowed: " + origin));
     }
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
-}));
+};
 
-// 🔥 IMPORTANT: handle preflight requests
-app.options("*", cors());
+/* ✅ APPLY CORS (NO app.options needed) */
+app.use(cors(corsOptions));
 
 /* ================= MIDDLEWARE ================= */
 app.use(express.json());
@@ -64,9 +55,10 @@ app.get("/api/test", (req, res) => {
 app.use("/uploads", express.static("uploads"));
 
 /* ================= DATABASE ================= */
-mongoose.connect(process.env.MONGO_URI)
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.log("❌ DB Error:", err));
+  .catch((err) => console.log("❌ DB Error:", err));
 
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 5000;
