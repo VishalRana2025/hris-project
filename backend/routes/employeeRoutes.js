@@ -25,8 +25,8 @@ router.get("/", auth, async (req, res) => {
       return res.status(403).json({ msg: "Access denied" });
     }
 
-    // 🔥 show only employees created by this admin
-    const employees = await Employee.find({ userId: req.user.id });
+    // 🔥 SHOW ALL EMPLOYEES
+const employees = await Employee.find();
 
     res.json(employees);
   } catch (err) {
