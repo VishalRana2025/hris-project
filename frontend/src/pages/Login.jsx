@@ -47,6 +47,7 @@ export default function Login() {
           <input
             className="border p-2 w-full mb-3"
             placeholder="Email"
+            autoComplete="email"   // ✅ FIX WARNING
             onChange={(e) =>
               setForm({ ...form, email: e.target.value })
             }
@@ -56,6 +57,7 @@ export default function Login() {
             type="password"
             className="border p-2 w-full mb-3"
             placeholder="Password"
+            autoComplete="current-password"   // ✅ FIX WARNING
             onChange={(e) =>
               setForm({ ...form, password: e.target.value })
             }
@@ -71,7 +73,7 @@ export default function Login() {
 
         <p className="mt-3 text-sm">
           Don't have an account?{" "}
-          <Link to="/register" className="text-blue-600">
+          <Link to="/register" className="text-blue-600 font-medium">
             Signup
           </Link>
         </p>
