@@ -59,24 +59,27 @@ export default function AddEmployee() {
     panNumber: ""
   });
 
-  // 🔥 SAFE DATE FUNCTION (FINAL FIX)
+  // 🔥 SAFE DATE FUNCTION
   const safeDate = (value) => {
-    if (!value || value === "") return null;
-
-    const d = new Date(value);
+    if (!value) return null;
+    const d = new Date(value.toString().trim());
     return isNaN(d.getTime()) ? null : d;
+  };
+
+  // 🔥 FORMAT DATE FOR INPUT DISPLAY
+  const formatDate = (value) => {
+    if (!value) return "";
+    return new Date(value).toISOString().split("T")[0];
   };
 
   // 🔥 PREPARE DATA
   const prepareData = () => {
     return {
       ...form,
-
       fullName:
         form.fullName ||
         `${form.firstName || ""} ${form.lastName || ""}`.trim(),
 
-      // ✅ SAFE DATE CONVERSION
       dob: safeDate(form.dob),
       dateJoined: safeDate(form.dateJoined),
       probationEndDate: safeDate(form.probationEndDate),
@@ -138,10 +141,12 @@ export default function AddEmployee() {
               <Input label="Full Name" value={form.fullName}
                 onChange={(v)=>setForm({...form, fullName:v})}
               />
+
               <Input
                 label="DOB"
-                type="date"   // 🔥 MUST
-                value={form.dob}
+                type="date"
+                max={new Date().toISOString().split("T")[0]}
+                value={formatDate(form.dob)}
                 onChange={(v)=>setForm({...form, dob:v})}
               />
             </Section>
@@ -154,22 +159,25 @@ export default function AddEmployee() {
               <Input label="Job Title" value={form.jobTitle}
                 onChange={(v)=>setForm({...form, jobTitle:v})}
               />
+
               <Input
                 label="Date Joined"
                 type="date"
-                value={form.dateJoined}
+                value={formatDate(form.dateJoined)}
                 onChange={(v)=>setForm({...form, dateJoined:v})}
               />
+
               <Input
                 label="Probation End Date"
                 type="date"
-                value={form.probationEndDate}
+                value={formatDate(form.probationEndDate)}
                 onChange={(v)=>setForm({...form, probationEndDate:v})}
               />
+
               <Input
                 label="Last Working Day"
                 type="date"
-                value={form.lastWorkingDay}
+                value={formatDate(form.lastWorkingDay)}
                 onChange={(v)=>setForm({...form, lastWorkingDay:v})}
               />
             </Section>
@@ -212,8 +220,8 @@ export default function AddEmployee() {
   );
 }
 
-// INPUT
-function Input({ label, value, onChange, type = "text" }) {
+// 🔹 INPUT COMPONENT
+function Input({ label, value, onChange, type = "text", ...props }) {
   return (
     <div className="mb-3">
       <p className="text-sm">{label}</p>
@@ -222,12 +230,13 @@ function Input({ label, value, onChange, type = "text" }) {
         className="border p-2 w-full rounded"
         value={value || ""}
         onChange={(e)=>onChange(e.target.value)}
+        {...props}
       />
     </div>
   );
 }
 
-// SECTION
+// 🔹 SECTION COMPONENT
 function Section({ title, children }) {
   return (
     <div className="mb-6">
