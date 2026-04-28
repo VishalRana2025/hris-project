@@ -13,7 +13,8 @@ router.get("/me", auth, async (req, res) => {
 
     res.json(employee);
   } catch (err) {
-    res.status(500).json({ msg: "Error fetching employee" });
+    console.log("GET ME ERROR:", err);
+    res.status(500).json({ msg: err.message });
   }
 });
 
@@ -24,26 +25,38 @@ router.get("/", auth, async (req, res) => {
       return res.status(403).json({ msg: "Access denied" });
     }
 
-    const employees = await Employee.find();
+    // 🔥 show only employees created by this admin
+    const employees = await Employee.find({ userId: req.user.id });
+
     res.json(employees);
   } catch (err) {
-    res.status(500).json({ msg: "Error fetching employees" });
+    console.log("GET ALL ERROR:", err);
+    res.status(500).json({ msg: err.message });
   }
 });
 
-// ✅ CREATE EMPLOYEE (ADMIN ONLY)
+// ✅ CREATE EMPLOYEE (ADMIN ONLY) 🔥 FIXED
 router.post("/", auth, async (req, res) => {
   try {
     if (req.user.role !== "admin") {
       return res.status(403).json({ msg: "Access denied" });
     }
 
-    const emp = new Employee(req.body);
+    console.log("BODY:", req.body);
+
+    const emp = new Employee({
+      ...req.body,
+
+      // 🔥 MOST IMPORTANT FIX
+      userId: req.user.id
+    });
+
     await emp.save();
 
     res.json(emp);
   } catch (err) {
-    res.status(500).json({ msg: "Error creating employee" });
+    console.log("CREATE ERROR:", err);
+    res.status(500).json({ msg: err.message });
   }
 });
 
@@ -66,7 +79,8 @@ router.put("/:id", auth, async (req, res) => {
 
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ msg: "Update error" });
+    console.log("UPDATE ERROR:", err);
+    res.status(500).json({ msg: err.message });
   }
 });
 
@@ -81,20 +95,9 @@ router.delete("/:id", auth, async (req, res) => {
 
     res.json({ msg: "Employee deleted" });
   } catch (err) {
-    res.status(500).json({ msg: "Delete error" });
+    console.log("DELETE ERROR:", err);
+    res.status(500).json({ msg: err.message });
   }
-});
-
-
-router.post("/", auth, async (req, res) => {
-  if (req.user.role !== "admin") {
-    return res.status(403).json({ msg: "Only admin can add employee" });
-  }
-
-  const emp = new Employee(req.body);
-  await emp.save();
-
-  res.json(emp);
 });
 
 module.exports = router;

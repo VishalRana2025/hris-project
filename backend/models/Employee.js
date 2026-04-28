@@ -1,15 +1,27 @@
 const mongoose = require("mongoose");
 
+const addressSchema = new mongoose.Schema(
+  {
+    line1: String,
+    line2: String,
+    city: String,
+    state: String,
+    country: String,
+    zipCode: String
+  },
+  { _id: false }
+);
+
 const employeeSchema = new mongoose.Schema(
   {
-    // 🔥 ADD THIS (MOST IMPORTANT FIX)
+    // 🔥 LINK TO USER (ADMIN WHO CREATED)
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true
     },
 
-    // BASIC
+    // 🔹 PRIMARY
     employeeNumber: String,
     firstName: String,
     middleName: String,
@@ -17,14 +29,14 @@ const employeeSchema = new mongoose.Schema(
     displayName: String,
     fullName: String,
 
-    // PERSONAL
+    // 🔹 PERSONAL
     nationality: String,
     bloodGroup: String,
     dob: Date,
     gender: String,
     maritalStatus: String,
 
-    // JOB
+    // 🔹 JOB
     employmentStatus: String,
     dateJoined: Date,
     probationEndDate: Date,
@@ -37,30 +49,16 @@ const employeeSchema = new mongoose.Schema(
     shiftPolicy: String,
     lastWorkingDay: Date,
 
-    // CONTACT
+    // 🔹 CONTACT
     mobilePhone: String,
     personalEmail: String,
     workEmail: String,
 
-    // ADDRESS
-    currentAddress: {
-      line1: String,
-      line2: String,
-      city: String,
-      state: String,
-      zipCode: String
-    },
+    // 🔹 ADDRESS
+    currentAddress: addressSchema,
+    permanentAddress: addressSchema,
 
-    permanentAddress: {
-      line1: String,
-      line2: String,
-      city: String,
-      state: String,
-      country: String,
-      zipCode: String
-    },
-
-    // GOVT
+    // 🔹 GOVT
     aadhaarNumber: String,
     panNumber: String,
 

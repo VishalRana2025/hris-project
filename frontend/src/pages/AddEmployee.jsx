@@ -59,13 +59,41 @@ export default function AddEmployee() {
     panNumber: ""
   });
 
+  // 🔥 FORMAT DATA BEFORE SEND
+  const prepareData = () => {
+    return {
+      ...form,
+
+      dob: form.dob ? new Date(form.dob) : null,
+      dateJoined: form.dateJoined ? new Date(form.dateJoined) : null,
+      probationEndDate: form.probationEndDate
+        ? new Date(form.probationEndDate)
+        : null,
+      lastWorkingDay: form.lastWorkingDay
+        ? new Date(form.lastWorkingDay)
+        : null
+    };
+  };
+
   const handleSubmit = async () => {
     try {
-      await addEmployee(form, token);
+      // 🔥 BASIC VALIDATION
+      if (!form.firstName || !form.personalEmail) {
+        return alert("First Name & Email required");
+      }
+
+      const payload = prepareData();
+
+      console.log("SENDING:", payload);
+
+      await addEmployee(payload, token);
+
       alert("Employee Added ✅");
       navigate("/employees");
+
     } catch (err) {
-      alert("Error ❌");
+      console.log("ERROR:", err);
+      alert(err.response?.data?.msg || "Error ❌");
     }
   };
 
@@ -81,7 +109,7 @@ export default function AddEmployee() {
 
           <div className="bg-white p-6 rounded-xl shadow max-w-6xl">
 
-            {/* 🔥 PRIMARY */}
+            {/* PRIMARY */}
             <Section title="Primary Details">
               <Input label="Employee Number" value={form.employeeNumber}
                 onChange={(v)=>setForm({...form, employeeNumber:v})}
@@ -89,71 +117,41 @@ export default function AddEmployee() {
               <Input label="First Name" value={form.firstName}
                 onChange={(v)=>setForm({...form, firstName:v})}
               />
-              <Input label="Middle Name" value={form.middleName}
-                onChange={(v)=>setForm({...form, middleName:v})}
-              />
               <Input label="Last Name" value={form.lastName}
                 onChange={(v)=>setForm({...form, lastName:v})}
-              />
-              <Input label="Display Name" value={form.displayName}
-                onChange={(v)=>setForm({...form, displayName:v})}
               />
               <Input label="Full Name" value={form.fullName}
                 onChange={(v)=>setForm({...form, fullName:v})}
               />
-              <Input label="Nationality" value={form.nationality}
-                onChange={(v)=>setForm({...form, nationality:v})}
-              />
-              <Input label="Blood Group" value={form.bloodGroup}
-                onChange={(v)=>setForm({...form, bloodGroup:v})}
-              />
-              <Input label="DOB" value={form.dob}
+              <Input label="DOB" type="date" value={form.dob}
                 onChange={(v)=>setForm({...form, dob:v})}
-              />
-              <Input label="Gender" value={form.gender}
-                onChange={(v)=>setForm({...form, gender:v})}
-              />
-              <Input label="Marital Status" value={form.maritalStatus}
-                onChange={(v)=>setForm({...form, maritalStatus:v})}
               />
             </Section>
 
-            {/* 🔥 JOB */}
+            {/* JOB */}
             <Section title="Job Details">
-              <Input label="Employment Status" value={form.employmentStatus}
-                onChange={(v)=>setForm({...form, employmentStatus:v})}
-              />
-              <Input label="Date Joined" value={form.dateJoined}
-                onChange={(v)=>setForm({...form, dateJoined:v})}
-              />
-              <Input label="Probation End" value={form.probationEndDate}
-                onChange={(v)=>setForm({...form, probationEndDate:v})}
-              />
-              <Input label="Reporting Manager" value={form.reportingManager}
-                onChange={(v)=>setForm({...form, reportingManager:v})}
+              <Input label="Department" value={form.department}
+                onChange={(v)=>setForm({...form, department:v})}
               />
               <Input label="Job Title" value={form.jobTitle}
                 onChange={(v)=>setForm({...form, jobTitle:v})}
               />
-              <Input label="Department" value={form.department}
-                onChange={(v)=>setForm({...form, department:v})}
+              <Input label="Date Joined" type="date" value={form.dateJoined}
+                onChange={(v)=>setForm({...form, dateJoined:v})}
               />
             </Section>
 
-            {/* 🔥 CONTACT */}
+            {/* CONTACT */}
             <Section title="Contact Details">
               <Input label="Mobile" value={form.mobilePhone}
                 onChange={(v)=>setForm({...form, mobilePhone:v})}
               />
-              <Input label="Personal Email" value={form.personalEmail}
+              <Input label="Email" value={form.personalEmail}
                 onChange={(v)=>setForm({...form, personalEmail:v})}
-              />
-              <Input label="Work Email" value={form.workEmail}
-                onChange={(v)=>setForm({...form, workEmail:v})}
               />
             </Section>
 
-            {/* 🔥 BUTTON */}
+            {/* BUTTON */}
             <div className="flex justify-end mt-6">
               <button
                 onClick={handleSubmit}
@@ -170,12 +168,13 @@ export default function AddEmployee() {
   );
 }
 
-/* 🔥 COMPONENTS */
-function Input({ label, value, onChange }) {
+/* COMPONENTS */
+function Input({ label, value, onChange, type = "text" }) {
   return (
     <div className="mb-3">
       <p className="text-sm">{label}</p>
       <input
+        type={type}
         className="border p-2 w-full rounded"
         value={value || ""}
         onChange={(e)=>onChange(e.target.value)}
