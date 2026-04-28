@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
 import Employees from "./pages/Employees";
@@ -16,81 +16,78 @@ function App() {
   const role = localStorage.getItem("role");
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <Routes>
 
-        <Route path="/" element={<Login />} />
+      <Route path="/" element={<Login />} />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              {role === "admin" ? <AdminDashboard /> : <Dashboard />}
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            {role === "admin" ? <AdminDashboard /> : <Dashboard />}
+          </ProtectedRoute>
+        }
+      />
 
-        <Route
-          path="/employees"
-          element={
-            <ProtectedRoute role="admin">
-              <Employees />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/employees"
+        element={
+          <ProtectedRoute role="admin">
+            <Employees />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route
-          path="/add-employee"
-          element={
-            <ProtectedRoute role="admin">
-              <AddEmployee />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/add-employee"
+        element={
+          <ProtectedRoute role="admin">
+            <AddEmployee />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route
-          path="/attendance"
-          element={
-            <ProtectedRoute>
-              <Attendance />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/attendance"
+        element={
+          <ProtectedRoute>
+            <Attendance />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route
-          path="/leaves"
-          element={
-            <ProtectedRoute role="admin">
-              <Leaves />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/leaves"
+        element={
+          <ProtectedRoute role="admin">
+            <Leaves />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
 
-        {/* 🔥 ONLY ORG ROUTE */}
-        <Route
-          path="/org"
-          element={
-            <ProtectedRoute role="admin">
-              <Org />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/org"
+        element={
+          <ProtectedRoute role="admin">
+            <Org />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route path="/register" element={<Register />} />
+      <Route path="/register" element={<Register />} />
 
-        <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/" />} />
 
-      </Routes>
-    </BrowserRouter>
+    </Routes>
   );
 }
 
