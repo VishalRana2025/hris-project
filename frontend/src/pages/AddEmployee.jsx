@@ -59,31 +59,32 @@ export default function AddEmployee() {
     panNumber: ""
   });
 
-  // 🔥 FORMAT DATA
+  // 🔥 SAFE DATE FUNCTION (FINAL FIX)
+  const safeDate = (value) => {
+    if (!value || value === "") return null;
+
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  // 🔥 PREPARE DATA
   const prepareData = () => {
     return {
       ...form,
 
-      // 🔥 AUTO FULL NAME
       fullName:
         form.fullName ||
         `${form.firstName || ""} ${form.lastName || ""}`.trim(),
 
-      // 🔥 DATE FIX
-      dob: form.dob ? new Date(form.dob) : null,
-      dateJoined: form.dateJoined ? new Date(form.dateJoined) : null,
-      probationEndDate: form.probationEndDate
-        ? new Date(form.probationEndDate)
-        : null,
-      lastWorkingDay: form.lastWorkingDay
-        ? new Date(form.lastWorkingDay)
-        : null,
+      // ✅ SAFE DATE CONVERSION
+      dob: safeDate(form.dob),
+      dateJoined: safeDate(form.dateJoined),
+      probationEndDate: safeDate(form.probationEndDate),
+      lastWorkingDay: safeDate(form.lastWorkingDay),
 
-      // 🔥 SAFE ADDRESS
       currentAddress: form.currentAddress || {},
       permanentAddress: form.permanentAddress || {},
 
-      // 🔥 CLEAN STRINGS
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       personalEmail: form.personalEmail.trim()
@@ -123,6 +124,7 @@ export default function AddEmployee() {
 
           <div className="bg-white p-6 rounded-xl shadow max-w-6xl">
 
+            {/* PRIMARY */}
             <Section title="Primary Details">
               <Input label="Employee Number" value={form.employeeNumber}
                 onChange={(v)=>setForm({...form, employeeNumber:v})}
@@ -136,11 +138,15 @@ export default function AddEmployee() {
               <Input label="Full Name" value={form.fullName}
                 onChange={(v)=>setForm({...form, fullName:v})}
               />
-              <Input label="DOB" type="date" value={form.dob}
+              <Input
+                label="DOB"
+                type="date"   // 🔥 MUST
+                value={form.dob}
                 onChange={(v)=>setForm({...form, dob:v})}
               />
             </Section>
 
+            {/* JOB */}
             <Section title="Job Details">
               <Input label="Department" value={form.department}
                 onChange={(v)=>setForm({...form, department:v})}
@@ -148,11 +154,27 @@ export default function AddEmployee() {
               <Input label="Job Title" value={form.jobTitle}
                 onChange={(v)=>setForm({...form, jobTitle:v})}
               />
-              <Input label="Date Joined" type="date" value={form.dateJoined}
+              <Input
+                label="Date Joined"
+                type="date"
+                value={form.dateJoined}
                 onChange={(v)=>setForm({...form, dateJoined:v})}
+              />
+              <Input
+                label="Probation End Date"
+                type="date"
+                value={form.probationEndDate}
+                onChange={(v)=>setForm({...form, probationEndDate:v})}
+              />
+              <Input
+                label="Last Working Day"
+                type="date"
+                value={form.lastWorkingDay}
+                onChange={(v)=>setForm({...form, lastWorkingDay:v})}
               />
             </Section>
 
+            {/* CONTACT */}
             <Section title="Contact Details">
               <Input label="Mobile" value={form.mobilePhone}
                 onChange={(v)=>setForm({...form, mobilePhone:v})}
@@ -162,7 +184,7 @@ export default function AddEmployee() {
               />
             </Section>
 
-            {/* 🔥 CAB FACILITY */}
+            {/* CAB */}
             <div className="flex items-center gap-2 mt-4">
               <input
                 type="checkbox"
@@ -190,7 +212,7 @@ export default function AddEmployee() {
   );
 }
 
-/* COMPONENTS */
+// INPUT
 function Input({ label, value, onChange, type = "text" }) {
   return (
     <div className="mb-3">
@@ -205,6 +227,7 @@ function Input({ label, value, onChange, type = "text" }) {
   );
 }
 
+// SECTION
 function Section({ title, children }) {
   return (
     <div className="mb-6">
