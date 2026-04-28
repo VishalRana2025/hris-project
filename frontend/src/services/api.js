@@ -2,7 +2,7 @@ import axios from "axios";
 
 /* 🔥 BASE INSTANCE */
 const API = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`
+  baseURL: "https://hris-project-hw7k.onrender.com/api"
 });
 
 /* 🔥 COMMON AUTH HEADER */
