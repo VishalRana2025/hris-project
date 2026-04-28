@@ -6,11 +6,19 @@ const cors = require("cors");
 const app = express();
 
 /* ================= MIDDLEWARE ================= */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://hris-project-5gvzo66b1-visionary-dynamics-projects.vercel.app"
+];
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://your-frontend.vercel.app" // 🔁 replace after deploy
-  ],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
   credentials: true
 }));
 
