@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { login } from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -12,10 +12,6 @@ export default function Login() {
     }
 
     try {
-     const API = axios.create({
-  baseURL: "https://hris-project-hw7k.onrender.com/api"
-});
-
       const res = await login(form);
 
       console.log("LOGIN RESPONSE:", res.data);
@@ -75,9 +71,9 @@ export default function Login() {
 
         <p className="mt-3 text-sm">
           Don't have an account?{" "}
-          <a href="/register" className="text-blue-600">
+          <Link to="/register" className="text-blue-600">
             Signup
-          </a>
+          </Link>
         </p>
       </div>
     </div>
