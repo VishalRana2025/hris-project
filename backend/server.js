@@ -9,9 +9,9 @@ const app = express();
 const corsOptions = {
   origin: function (origin, callback) {
     if (
-      !origin || // allow Postman / curl
+      !origin ||
       origin.includes("localhost") ||
-      origin.includes("vercel.app") // 🔥 allow all Vercel deployments
+      origin.includes("vercel.app")
     ) {
       callback(null, true);
     } else {
@@ -23,7 +23,7 @@ const corsOptions = {
   credentials: true
 };
 
-/* ✅ APPLY CORS (NO app.options needed) */
+/* ✅ APPLY CORS */
 app.use(cors(corsOptions));
 
 /* ================= MIDDLEWARE ================= */
@@ -39,12 +39,18 @@ const profileRoutes = require("./routes/profileRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const orgRoutes = require("./routes/orgRoutes");
 
+// 🔥 ADD THIS
+const dashboardRoutes = require("./routes/dashboardRoutes");
+
 app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/leaves", leaveRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/org", orgRoutes);
+
+// 🔥 ADD THIS
+app.use("/api/dashboard", dashboardRoutes);
 
 /* ================= TEST ROUTE ================= */
 app.get("/api/test", (req, res) => {
