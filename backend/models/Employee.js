@@ -14,14 +14,12 @@ const addressSchema = new mongoose.Schema(
 
 const employeeSchema = new mongoose.Schema(
   {
-    // 🔥 LINK TO USER (ADMIN WHO CREATED)
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true
     },
 
-    // 🔹 PRIMARY
     employeeNumber: String,
     firstName: String,
     middleName: String,
@@ -29,14 +27,12 @@ const employeeSchema = new mongoose.Schema(
     displayName: String,
     fullName: String,
 
-    // 🔹 PERSONAL
     nationality: String,
     bloodGroup: String,
     dob: Date,
     gender: String,
     maritalStatus: String,
 
-    // 🔹 JOB
     employmentStatus: String,
     dateJoined: Date,
     probationEndDate: Date,
@@ -49,16 +45,13 @@ const employeeSchema = new mongoose.Schema(
     shiftPolicy: String,
     lastWorkingDay: Date,
 
-    // 🔹 CONTACT
     mobilePhone: String,
     personalEmail: String,
     workEmail: String,
 
-    // 🔹 ADDRESS
     currentAddress: addressSchema,
     permanentAddress: addressSchema,
 
-    // 🔹 GOVT
     aadhaarNumber: String,
     panNumber: String,
 

@@ -59,11 +59,17 @@ export default function AddEmployee() {
     panNumber: ""
   });
 
-  // 🔥 FORMAT DATA BEFORE SEND
+  // 🔥 FORMAT DATA
   const prepareData = () => {
     return {
       ...form,
 
+      // 🔥 AUTO FULL NAME
+      fullName:
+        form.fullName ||
+        `${form.firstName || ""} ${form.lastName || ""}`.trim(),
+
+      // 🔥 DATE FIX
       dob: form.dob ? new Date(form.dob) : null,
       dateJoined: form.dateJoined ? new Date(form.dateJoined) : null,
       probationEndDate: form.probationEndDate
@@ -71,20 +77,28 @@ export default function AddEmployee() {
         : null,
       lastWorkingDay: form.lastWorkingDay
         ? new Date(form.lastWorkingDay)
-        : null
+        : null,
+
+      // 🔥 SAFE ADDRESS
+      currentAddress: form.currentAddress || {},
+      permanentAddress: form.permanentAddress || {},
+
+      // 🔥 CLEAN STRINGS
+      firstName: form.firstName.trim(),
+      lastName: form.lastName.trim(),
+      personalEmail: form.personalEmail.trim()
     };
   };
 
   const handleSubmit = async () => {
     try {
-      // 🔥 BASIC VALIDATION
       if (!form.firstName || !form.personalEmail) {
         return alert("First Name & Email required");
       }
 
       const payload = prepareData();
 
-      console.log("SENDING:", payload);
+      console.log("🚀 SENDING:", payload);
 
       await addEmployee(payload, token);
 
@@ -92,7 +106,7 @@ export default function AddEmployee() {
       navigate("/employees");
 
     } catch (err) {
-      console.log("ERROR:", err);
+      console.log("❌ ERROR:", err);
       alert(err.response?.data?.msg || "Error ❌");
     }
   };
@@ -109,7 +123,6 @@ export default function AddEmployee() {
 
           <div className="bg-white p-6 rounded-xl shadow max-w-6xl">
 
-            {/* PRIMARY */}
             <Section title="Primary Details">
               <Input label="Employee Number" value={form.employeeNumber}
                 onChange={(v)=>setForm({...form, employeeNumber:v})}
@@ -128,7 +141,6 @@ export default function AddEmployee() {
               />
             </Section>
 
-            {/* JOB */}
             <Section title="Job Details">
               <Input label="Department" value={form.department}
                 onChange={(v)=>setForm({...form, department:v})}
@@ -141,7 +153,6 @@ export default function AddEmployee() {
               />
             </Section>
 
-            {/* CONTACT */}
             <Section title="Contact Details">
               <Input label="Mobile" value={form.mobilePhone}
                 onChange={(v)=>setForm({...form, mobilePhone:v})}
@@ -151,7 +162,18 @@ export default function AddEmployee() {
               />
             </Section>
 
-            {/* BUTTON */}
+            {/* 🔥 CAB FACILITY */}
+            <div className="flex items-center gap-2 mt-4">
+              <input
+                type="checkbox"
+                checked={form.cabFacility}
+                onChange={(e) =>
+                  setForm({ ...form, cabFacility: e.target.checked })
+                }
+              />
+              <label>Cab Facility</label>
+            </div>
+
             <div className="flex justify-end mt-6">
               <button
                 onClick={handleSubmit}
