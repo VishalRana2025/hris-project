@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import {
+  getEmployees,
+  deleteEmployee,
+  updateEmployee
+} from "../services/api";
 
 export default function Employees() {
   const token = localStorage.getItem("token");
@@ -9,47 +14,44 @@ export default function Employees() {
   const [employees, setEmployees] = useState([]);
   const [editEmp, setEditEmp] = useState(null);
 
-  // FETCH EMPLOYEES
-  const fetchEmployees = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/employees", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
 
-      setEmployees(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
-  useEffect(() => {
+// FETCH EMPLOYEES
+const fetchEmployees = async () => {
+  try {
+    const res = await getEmployees(token);
+    setEmployees(res.data);
+  } catch (err) {
+    console.log("FETCH ERROR:", err);
+  }
+};
+
+useEffect(() => {
+  fetchEmployees();
+}, []);
+
+// DELETE
+const handleDelete = async (id) => {
+  if (!window.confirm("Delete this employee?")) return;
+
+  try {
+    await deleteEmployee(id, token);
     fetchEmployees();
-  }, []);
+  } catch (err) {
+    console.log("DELETE ERROR:", err);
+  }
+};
 
-  // DELETE
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this employee?")) return;
-
-    await axios.delete(`http://localhost:5000/api/employees/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    fetchEmployees();
-  };
-
-  // SAVE EDIT
-  const handleSave = async () => {
-    await axios.put(
-      `http://localhost:5000/api/employees/${editEmp._id}`,
-      editEmp,
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
-
+// SAVE EDIT
+const handleSave = async () => {
+  try {
+    await updateEmployee(editEmp._id, editEmp, token);
     setEditEmp(null);
     fetchEmployees();
-  };
+  } catch (err) {
+    console.log("UPDATE ERROR:", err);
+  }
+};
 
   return (
     <div className="flex">

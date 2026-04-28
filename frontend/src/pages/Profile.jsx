@@ -3,6 +3,8 @@ import axios from "axios";
 import { getProfile, uploadDocument } from "../services/api";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import { updateEmployee } from "../services/api";
+
 
 export default function Profile() {
   const token = localStorage.getItem("token");
@@ -30,22 +32,18 @@ export default function Profile() {
   }, [token]);
 
   // SAVE PROFILE (ADMIN ONLY)
-  const handleSave = async () => {
-    try {
-      await axios.put(
-        "http://localhost:5000/api/employees/" + employee._id,
-        employee,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+ const handleSave = async () => {
+  try {
+    await updateEmployee(employee._id, employee, token);
 
-      alert("Profile updated ✅");
-      setEditMode(false);
-    } catch (err) {
-      alert("Update failed ❌");
-    }
-  };
+    alert("Profile updated ✅");
+    setEditMode(false);
+
+  } catch (err) {
+    console.log("UPDATE ERROR:", err);
+    alert("Update failed ❌");
+  }
+};
 
   return (
     <div className="flex">
