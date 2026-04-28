@@ -12,7 +12,9 @@ export default function Login() {
     }
 
     try {
-      console.log("API URL:", import.meta.env.VITE_API_URL); // 🔍 debug
+     const API = axios.create({
+  baseURL: "https://hris-project-hw7k.onrender.com/api"
+});
 
       const res = await login(form);
 
