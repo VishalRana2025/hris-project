@@ -26,12 +26,11 @@ export default function Login() {
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
+
+      window.location.href = "/dashboard";
+
       // 🔥 REDIRECT BASED ON ROLE
-      if (res.data.role === "admin") {
-        navigate("/employees");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
 
     } catch (err) {
       console.log("ERROR:", err.response?.data);

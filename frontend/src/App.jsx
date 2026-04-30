@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 import Dashboard from "./pages/Dashboard";
 import Employees from "./pages/Employees";
@@ -13,7 +14,11 @@ import AddEmployee from "./pages/AddEmployee";
 import Org from "./pages/Org";
 
 function App() {
-  const role = localStorage.getItem("role");
+  const [role, setRole] = useState(localStorage.getItem("role"));
+
+  useEffect(() => {
+    setRole(localStorage.getItem("role"));
+  }, []);
 
   return (
     <Routes>
