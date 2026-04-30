@@ -3,17 +3,32 @@ const Employee = require("../models/Employee");
 const auth = require("../middleware/authMiddleware");
 
 
-// ✅ GET MY PROFILE (FIXED)
+// ==============================
+// ✅ GET MY PROFILE (FINAL FIX)
+// ==============================
 router.get("/me", auth, async (req, res) => {
   try {
-    // 🔥 USE EMAIL FROM TOKEN
-    const employee = await Employee.findOne({ email: req.user.email });
+    const userEmail = req.user.email?.toLowerCase().trim();
+
+    console.log("🔍 TOKEN USER:", req.user);
+    console.log("🔍 SEARCH EMAIL:", userEmail);
+
+    const employee = await Employee.findOne({
+      $or: [
+        { email: userEmail },
+        { workEmail: userEmail },
+        { personalEmail: userEmail }
+      ]
+    });
 
     if (!employee) {
-      return res.status(404).json({ msg: "Employee not found" });
+      return res.status(404).json({
+        msg: "Employee not found for this user"
+      });
     }
 
     res.json(employee);
+
   } catch (err) {
     console.log("GET ME ERROR:", err);
     res.status(500).json({ msg: err.message });
@@ -21,7 +36,9 @@ router.get("/me", auth, async (req, res) => {
 });
 
 
-// ✅ GET ALL EMPLOYEES (ADMIN ONLY)
+// ==============================
+// ✅ GET ALL EMPLOYEES (ADMIN)
+// ==============================
 router.get("/", auth, async (req, res) => {
   try {
     if (req.user.role !== "admin") {
@@ -38,7 +55,9 @@ router.get("/", auth, async (req, res) => {
 });
 
 
-// ✅ CREATE EMPLOYEE (NO DUPLICATE)
+// ==============================
+// ✅ CREATE EMPLOYEE
+// ==============================
 router.post("/", auth, async (req, res) => {
   try {
     if (req.user.role !== "admin") {
@@ -48,7 +67,6 @@ router.post("/", auth, async (req, res) => {
     const workEmail = req.body.workEmail?.toLowerCase().trim();
     const personalEmail = req.body.personalEmail?.toLowerCase().trim();
 
-    // 🔥 CHECK DUPLICATE (ALL CASES)
     const existing = await Employee.findOne({
       $or: [
         { email: workEmail },
@@ -69,7 +87,7 @@ router.post("/", auth, async (req, res) => {
 
     const emp = await Employee.create({
       ...req.body,
-      email: workEmail, // 🔥 PRIMARY LOGIN EMAIL
+      email: workEmail, // 🔥 IMPORTANT LINK FIELD
       workEmail,
       personalEmail,
       isRegistered: false
@@ -78,12 +96,15 @@ router.post("/", auth, async (req, res) => {
     res.json(emp);
 
   } catch (err) {
+    console.log("CREATE ERROR:", err);
     res.status(500).json({ msg: err.message });
   }
 });
 
 
+// ==============================
 // ✅ UPDATE EMPLOYEE
+// ==============================
 router.put("/:id", auth, async (req, res) => {
   try {
     if (req.user.role !== "admin") {
@@ -109,7 +130,9 @@ router.put("/:id", auth, async (req, res) => {
 });
 
 
+// ==============================
 // ✅ DELETE EMPLOYEE
+// ==============================
 router.delete("/:id", auth, async (req, res) => {
   try {
     if (req.user.role !== "admin") {

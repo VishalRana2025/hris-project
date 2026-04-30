@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { getProfile, uploadDocument } from "../services/api";
+import { getMyEmployee } from "../services/api";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import { updateEmployee } from "../services/api";
@@ -10,21 +10,28 @@ export default function Profile() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role"); // ✅ ROLE
 
-  const [user, setUser] = useState({ documents: [] });
+const [user, setUser] = useState({
+  name: localStorage.getItem("name"),
+  email: localStorage.getItem("email"),
+  role: localStorage.getItem("role")
+});
   const [employee, setEmployee] = useState(null);
   const [file, setFile] = useState(null);
   const [editMode, setEditMode] = useState(false);
 
   // FETCH PROFILE
   const fetchProfile = async () => {
-    try {
-      const res = await getProfile(token);
-      setUser(res.data.user || { documents: [] });
-      setEmployee(res.data.employee);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  try {
+    const res = await getMyEmployee(token);
+
+    console.log("EMPLOYEE DATA:", res.data); // DEBUG
+
+    setEmployee(res.data);
+
+  } catch (err) {
+    console.log("PROFILE ERROR:", err);
+  }
+};
 
   useEffect(() => {
     if (!token) return;
@@ -69,7 +76,9 @@ export default function Profile() {
           </div>
 
           {/* EMPLOYEE */}
-          {employee && (
+          {!employee ? (
+  <p className="text-gray-500">Loading employee data...</p>
+) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
               {/* PRIMARY */}

@@ -20,7 +20,14 @@ module.exports = function (req, res, next) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded; // { id, role }
+    // ✅ FIX: Ensure all required fields exist
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,   // 🔥 MUST BE PRESENT
+      role: decoded.role
+    };
+
+    console.log("✅ AUTH USER:", req.user); // DEBUG
 
     next();
   } catch (err) {
