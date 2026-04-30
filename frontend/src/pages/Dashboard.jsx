@@ -33,19 +33,20 @@ export default function Dashboard() {
   // =============================
   // FETCH DASHBOARD DATA
   // =============================
-  const fetchData = async () => {
-    try {
-      const empRes = await getEmployees(token);
-      setTotal(empRes.data.length);
+const fetchData = async () => {
+  try {
+    const attRes = await getTodayAttendance(token);
+    setPresent(attRes.data.length);
 
-      const attRes = await getTodayAttendance(token);
-      setPresent(attRes.data.length);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Optional: if you don’t have employee count API
+    setTotal(1); // because employee dashboard = single user
+
+  } catch (err) {
+    console.log(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =============================
   // FETCH EMPLOYEE
