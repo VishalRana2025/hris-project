@@ -2,36 +2,41 @@ const jwt = require("jsonwebtoken");
 
 module.exports = function (req, res, next) {
   try {
+    // 🔥 Get token from header
     const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
-      return res.status(401).json({ msg: "No token provided" });
-    }
-
-    if (!authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ msg: "Invalid token format" });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ msg: "No valid token provided" });
     }
 
     const token = authHeader.split(" ")[1];
 
-    if (!token || token === "undefined" || token === "null") {
-      return res.status(401).json({ msg: "Invalid token" });
+    if (!token) {
+      return res.status(401).json({ msg: "Token missing" });
     }
 
+    // 🔥 Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // ✅ FIX: Ensure all required fields exist
+    // 🔥 Attach user to request
     req.user = {
       id: decoded.id,
-      email: decoded.email,   // 🔥 MUST BE PRESENT
+      email: decoded.email,
       role: decoded.role
     };
 
-    console.log("✅ AUTH USER:", req.user); // DEBUG
+    // 🔥 Debug (only in development)
+    if (process.env.NODE_ENV !== "production") {
+      console.log("✅ AUTH USER:", req.user);
+    }
 
     next();
+
   } catch (err) {
-    console.log("JWT ERROR:", err.message);
-    return res.status(401).json({ msg: "Token invalid" });
+    console.log("❌ JWT ERROR:", err.message);
+
+    return res.status(401).json({
+      msg: "Invalid or expired token"
+    });
   }
 };

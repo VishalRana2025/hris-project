@@ -14,27 +14,16 @@ const addressSchema = new mongoose.Schema(
 
 const employeeSchema = new mongoose.Schema(
   {
-    // 🔥 REMOVE userId (IMPORTANT)
-    // userId: ❌ DELETE THIS
-
-    // 🔥 AUTH FIELDS (NEW)
+    // 🔥 MAIN LINK FIELD (LOGIN MATCH)
     email: {
       type: String,
       required: true,
       unique: true
     },
 
-    password: String,
-
-    isRegistered: {
-      type: Boolean,
-      default: false
-    },
-
-    role: {
-      type: String,
-      default: "employee"
-    },
+    // 🔥 EMAILS
+    personalEmail: String,
+    workEmail: String,
 
     // 🔥 BASIC INFO
     employeeNumber: String,
@@ -63,14 +52,6 @@ const employeeSchema = new mongoose.Schema(
     lastWorkingDay: Date,
 
     mobilePhone: String,
-
-    // 🔥 EMAILS
-    personalEmail: String,
-    workEmail: String,
-
-    // 🔥 ADD MAIN EMAIL LINK
-    // (important for login)
-    // You can use workEmail as login OR keep separate email
 
     // 🔥 ADDRESS
     currentAddress: addressSchema,

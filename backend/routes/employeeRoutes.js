@@ -4,14 +4,11 @@ const auth = require("../middleware/authMiddleware");
 
 
 // ==============================
-// ✅ GET MY PROFILE (FINAL FIX)
+// ✅ GET MY PROFILE
 // ==============================
 router.get("/me", auth, async (req, res) => {
   try {
-    const userEmail = req.user.email?.toLowerCase().trim();
-
-    console.log("🔍 TOKEN USER:", req.user);
-    console.log("🔍 SEARCH EMAIL:", userEmail);
+    const userEmail = req.user.email.toLowerCase().trim();
 
     const employee = await Employee.findOne({
       $or: [
@@ -19,11 +16,11 @@ router.get("/me", auth, async (req, res) => {
         { workEmail: userEmail },
         { personalEmail: userEmail }
       ]
-    });
+    }).select("-password");
 
     if (!employee) {
       return res.status(404).json({
-        msg: "Employee not found for this user"
+        msg: "Employee not found"
       });
     }
 
@@ -48,6 +45,7 @@ router.get("/", auth, async (req, res) => {
     const employees = await Employee.find().sort({ createdAt: -1 });
 
     res.json(employees);
+
   } catch (err) {
     console.log("GET ALL ERROR:", err);
     res.status(500).json({ msg: err.message });
@@ -70,27 +68,22 @@ router.post("/", auth, async (req, res) => {
     const existing = await Employee.findOne({
       $or: [
         { email: workEmail },
-        { workEmail: workEmail },
-        { personalEmail: workEmail },
-
-        { email: personalEmail },
-        { workEmail: personalEmail },
-        { personalEmail: personalEmail }
+        { workEmail },
+        { personalEmail }
       ]
     });
 
     if (existing) {
       return res.status(400).json({
-        msg: "Email already used. Use different email."
+        msg: "Email already used"
       });
     }
 
     const emp = await Employee.create({
       ...req.body,
-      email: workEmail, // 🔥 IMPORTANT LINK FIELD
+      email: workEmail, // 🔥 LINK FIELD
       workEmail,
-      personalEmail,
-      isRegistered: false
+      personalEmail
     });
 
     res.json(emp);
@@ -116,10 +109,6 @@ router.put("/:id", auth, async (req, res) => {
       req.body,
       { new: true }
     );
-
-    if (!updated) {
-      return res.status(404).json({ msg: "Employee not found" });
-    }
 
     res.json(updated);
 
