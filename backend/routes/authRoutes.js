@@ -1,36 +1,51 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const Employee = require("../models/Employee");
 
-// ✅ Register
+
+// 🔥 REGISTER (ACTIVATE EXISTING EMPLOYEE)
 router.post("/register", async (req, res) => {
   try {
     console.log("REGISTER BODY:", req.body);
 
-    const { name, email, password, role } = req.body;
+    const { email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ msg: "All fields required" });
+    // ✅ VALIDATION
+    if (!email || !password) {
+      return res.status(400).json({
+        msg: "Email & password required"
+      });
     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ msg: "User already exists" });
+    // 🔍 FIND EMPLOYEE (NOT USER)
+    const emp = await Employee.findOne({ email });
+
+    if (!emp) {
+      return res.status(400).json({
+        msg: "Employee not found. Contact admin."
+      });
     }
 
+    // 🚫 PREVENT DUPLICATE REGISTRATION
+    if (emp.isRegistered) {
+      return res.status(400).json({
+        msg: "Already registered. Please login."
+      });
+    }
+
+    // 🔐 HASH PASSWORD
     const hashed = await bcrypt.hash(password, 10);
 
-    const user = new User({
-      name,
-      email,
-      password: hashed,
-      role: role || "employee"   // 🔥 DEFAULT ROLE
+    // ✅ UPDATE SAME RECORD (NO NEW USER)
+    emp.password = hashed;
+    emp.isRegistered = true;
+
+    await emp.save();
+
+    res.json({
+      msg: "Registered successfully ✅"
     });
-
-    await user.save();
-
-    res.json({ msg: "User registered successfully" });
 
   } catch (err) {
     console.log("REGISTER ERROR:", err);
@@ -38,36 +53,53 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ✅ Login (FIXED)
+
+// 🔥 LOGIN (USING EMPLOYEE MODEL)
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // ✅ VALIDATION
     if (!email || !password) {
-      return res.status(400).json({ msg: "Email & password required" });
+      return res.status(400).json({
+        msg: "Email & password required"
+      });
     }
 
-    const user = await User.findOne({ email });
+    // 🔍 FIND EMPLOYEE
+    const user = await Employee.findOne({ email });
 
-    if (!user) {
-      return res.status(400).json({ msg: "User not found" });
+    if (!user || !user.password) {
+      return res.status(400).json({
+        msg: "Invalid credentials"
+      });
     }
 
+    // 🔐 CHECK PASSWORD
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ msg: "Invalid password" });
+      return res.status(400).json({
+        msg: "Wrong password"
+      });
     }
 
+    // 🔑 GENERATE TOKEN (IMPORTANT: INCLUDE EMAIL)
     const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET
+      {
+        id: user._id,
+        role: user.role,
+        email: user.email
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
     );
 
-    // ✅ IMPORTANT FIX
+    // ✅ RESPONSE
     res.json({
       token,
-      role: user.role
+      role: user.role,
+      user
     });
 
   } catch (err) {

@@ -2,10 +2,12 @@ const router = require("express").Router();
 const Employee = require("../models/Employee");
 const auth = require("../middleware/authMiddleware");
 
-// ✅ GET MY EMPLOYEE
+
+// ✅ GET MY PROFILE (FIXED)
 router.get("/me", auth, async (req, res) => {
   try {
-    const employee = await Employee.findOne({ userId: req.user.id });
+    // 🔥 USE EMAIL FROM TOKEN
+    const employee = await Employee.findOne({ email: req.user.email });
 
     if (!employee) {
       return res.status(404).json({ msg: "Employee not found" });
@@ -18,6 +20,7 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
+
 // ✅ GET ALL EMPLOYEES (ADMIN ONLY)
 router.get("/", auth, async (req, res) => {
   try {
@@ -25,8 +28,7 @@ router.get("/", auth, async (req, res) => {
       return res.status(403).json({ msg: "Access denied" });
     }
 
-    // 🔥 SHOW ALL EMPLOYEES
-const employees = await Employee.find();
+    const employees = await Employee.find().sort({ createdAt: -1 });
 
     res.json(employees);
   } catch (err) {
@@ -35,32 +37,42 @@ const employees = await Employee.find();
   }
 });
 
-// ✅ CREATE EMPLOYEE (ADMIN ONLY) 🔥 FIXED
+
+// ✅ CREATE EMPLOYEE (NO DUPLICATE)
 router.post("/", auth, async (req, res) => {
   try {
+    // 🔒 ONLY ADMIN
     if (req.user.role !== "admin") {
       return res.status(403).json({ msg: "Access denied" });
     }
 
-    console.log("BODY:", req.body);
+    const { email } = req.body;
 
-    const emp = new Employee({
+    // 🔥 🔥 PASTE HERE (IMPORTANT)
+    const existing = await Employee.findOne({ email });
+
+    if (existing) {
+      return res.status(400).json({
+        msg: "Employee already exists"
+      });
+    }
+
+    // ✅ CREATE EMPLOYEE
+    const emp = await Employee.create({
       ...req.body,
-
-      // 🔥 MOST IMPORTANT FIX
-      userId: req.user.id
+      isRegistered: false
     });
 
-    await emp.save();
-
     res.json(emp);
+
   } catch (err) {
     console.log("CREATE ERROR:", err);
     res.status(500).json({ msg: err.message });
   }
 });
 
-// ✅ UPDATE EMPLOYEE (ADMIN ONLY)
+
+// ✅ UPDATE EMPLOYEE
 router.put("/:id", auth, async (req, res) => {
   try {
     if (req.user.role !== "admin") {
@@ -78,13 +90,15 @@ router.put("/:id", auth, async (req, res) => {
     }
 
     res.json(updated);
+
   } catch (err) {
     console.log("UPDATE ERROR:", err);
     res.status(500).json({ msg: err.message });
   }
 });
 
-// ✅ DELETE EMPLOYEE (ADMIN ONLY)
+
+// ✅ DELETE EMPLOYEE
 router.delete("/:id", auth, async (req, res) => {
   try {
     if (req.user.role !== "admin") {
@@ -94,6 +108,7 @@ router.delete("/:id", auth, async (req, res) => {
     await Employee.findByIdAndDelete(req.params.id);
 
     res.json({ msg: "Employee deleted" });
+
   } catch (err) {
     console.log("DELETE ERROR:", err);
     res.status(500).json({ msg: err.message });

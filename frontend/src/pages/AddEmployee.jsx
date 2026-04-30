@@ -8,56 +8,58 @@ export default function AddEmployee() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  const [form, setForm] = useState({
-    employeeNumber: "",
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    displayName: "",
-    fullName: "",
-    nationality: "",
-    bloodGroup: "",
-    dob: "",
-    gender: "",
-    maritalStatus: "",
+const [form, setForm] = useState({
+  email: "", // 🔥 ADD THIS (MOST IMPORTANT)
 
-    employmentStatus: "",
-    dateJoined: "",
-    probationEndDate: "",
-    reportingManager: "",
-    jobTitle: "",
-    socialDesignation: "",
-    department: "",
-    band: "",
-    payGrade: "",
-    shiftPolicy: "",
-    lastWorkingDay: "",
+  employeeNumber: "",
+  firstName: "",
+  middleName: "",
+  lastName: "",
+  displayName: "",
+  fullName: "",
+  nationality: "",
+  bloodGroup: "",
+  dob: "",
+  gender: "",
+  maritalStatus: "",
 
-    mobilePhone: "",
-    personalEmail: "",
-    workEmail: "",
+  employmentStatus: "",
+  dateJoined: "",
+  probationEndDate: "",
+  reportingManager: "",
+  jobTitle: "",
+  socialDesignation: "",
+  department: "",
+  band: "",
+  payGrade: "",
+  shiftPolicy: "",
+  lastWorkingDay: "",
 
-    currentAddress: {
-      line1: "",
-      line2: "",
-      city: "",
-      state: "",
-      zipCode: ""
-    },
+  mobilePhone: "",
+  personalEmail: "",
+  workEmail: "",
 
-    permanentAddress: {
-      line1: "",
-      line2: "",
-      city: "",
-      state: "",
-      country: "",
-      zipCode: ""
-    },
+  currentAddress: {
+    line1: "",
+    line2: "",
+    city: "",
+    state: "",
+    zipCode: ""
+  },
 
-    cabFacility: false,
-    aadhaarNumber: "",
-    panNumber: ""
-  });
+  permanentAddress: {
+    line1: "",
+    line2: "",
+    city: "",
+    state: "",
+    country: "",
+    zipCode: ""
+  },
+
+  cabFacility: false,
+  aadhaarNumber: "",
+  panNumber: ""
+});
 
   // 🔥 SAFE DATE FUNCTION
   const safeDate = (value) => {
@@ -74,31 +76,35 @@ export default function AddEmployee() {
 
   // 🔥 PREPARE DATA
   const prepareData = () => {
-    return {
-      ...form,
-      fullName:
-        form.fullName ||
-        `${form.firstName || ""} ${form.middleName || ""} ${form.lastName || ""}`.trim(),
+  return {
+    ...form,
 
-      dob: safeDate(form.dob),
-      dateJoined: safeDate(form.dateJoined),
-      probationEndDate: safeDate(form.probationEndDate),
-      lastWorkingDay: safeDate(form.lastWorkingDay),
+    // 🔥 IMPORTANT: fallback logic
+    email: form.email || form.workEmail || form.personalEmail,
 
-      currentAddress: form.currentAddress || {},
-      permanentAddress: form.permanentAddress || {},
+    fullName:
+      form.fullName ||
+      `${form.firstName || ""} ${form.middleName || ""} ${form.lastName || ""}`.trim(),
 
-      firstName: form.firstName.trim(),
-      lastName: form.lastName.trim(),
-      personalEmail: form.personalEmail.trim()
-    };
+    dob: safeDate(form.dob),
+    dateJoined: safeDate(form.dateJoined),
+    probationEndDate: safeDate(form.probationEndDate),
+    lastWorkingDay: safeDate(form.lastWorkingDay),
+
+    currentAddress: form.currentAddress || {},
+    permanentAddress: form.permanentAddress || {},
+
+    firstName: form.firstName.trim(),
+    lastName: form.lastName.trim(),
+    personalEmail: form.personalEmail.trim()
   };
+};
 
   const handleSubmit = async () => {
     try {
-      if (!form.firstName || !form.personalEmail) {
-        return alert("First Name & Email required");
-      }
+     if (!form.firstName || !form.email) {
+  return alert("First Name & Login Email required");
+}
 
       const payload = prepareData();
 
@@ -129,6 +135,11 @@ export default function AddEmployee() {
 
             {/* PRIMARY DETAILS */}
             <Section title="Primary Details">
+              <Input
+  label="Login Email (Required)"
+  value={form.email}
+  onChange={(v) => setForm({ ...form, email: v })}
+/>
               <Input label="Employee Number" value={form.employeeNumber}
                 onChange={(v) => setForm({ ...form, employeeNumber: v })}
               />
