@@ -119,43 +119,43 @@ export default function Attendance() {
                       </thead>
 
                       <tbody>
-                        {data.map((item) => (
-                          <tr
-                            key={item._id}
-                            className="border-b hover:bg-gray-50 transition"
-                          >
-                            <td className="p-3 font-medium text-gray-700">
-                              {item.date}
-                            </td>
+  {data.map((item) => {
+    return (
+      <tr
+        key={item._id}
+        className="border-b hover:bg-gray-50 transition"
+      >
+        <td className="p-3 font-medium text-gray-700">
+          {item.date}
+        </td>
 
-                            <td className="p-3">
-                              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                                {item.checkIn}
-                              </span>
-                            </td>
+        <td className="p-3">
+          <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+            {item.checkIn}
+          </span>
+        </td>
 
-                            <td className="p-3">
-                              {item.checkOut ? (
-                                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-                                  {item.checkOut}
-                                </span>
-                              ) : (
-                                <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
-                                  Pending
-                                </span>
-                              )}
-                            </td>
+        <td className="p-3">
+          {item.checkOut ? (
+            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+              {item.checkOut}
+            </span>
+          ) : (
+            <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+              Pending
+            </span>
+          )}
+        </td>
 
-                            {/* 🔥 HOURS COLUMN */}
-                            <td className="p-3">
-                              <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
-                                {calculateHours(item.checkIn, item.checkOut)}
-                              </span>
-                            </td>
-
-                          </tr>
-                        ))}
-                      </tbody>
+        <td className="p-3">
+          <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
+            {calculateHours(item.checkIn, item.checkOut)}
+          </span>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
 
                     </table>
                   </div>

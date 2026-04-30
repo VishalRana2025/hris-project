@@ -9,6 +9,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+    // 🔒 Basic validation
     if (!form.email || !form.password) {
       return alert("Please fill all fields ⚠️");
     }
@@ -16,25 +17,29 @@ export default function Login() {
     try {
       setLoading(true);
 
+      // ✅ API call
       const res = await login({
-  email: form.email.toLowerCase().trim(),
-  password: form.password
-});
+        email: form.email.toLowerCase().trim(),
+        password: form.password,
+      });
 
-      // 🔥 SAVE DATA
+      console.log("LOGIN RESPONSE:", res.data);
+
+      // ✅ Save auth data
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-
-      window.location.href = "/dashboard";
-
-      // 🔥 REDIRECT BASED ON ROLE
+      // ✅ Navigate (App.jsx handles role)
       navigate("/dashboard");
 
     } catch (err) {
-      console.log("ERROR:", err.response?.data);
-alert(err.response?.data?.msg);
+      console.error("LOGIN ERROR:", err?.response?.data);
+
+      alert(
+        err?.response?.data?.msg ||
+        "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -43,7 +48,7 @@ alert(err.response?.data?.msg);
   return (
     <div className="flex h-screen">
 
-      {/* LEFT SIDE */}
+      {/* LEFT PANEL */}
       <div className="w-[480px] bg-[#1e1b2e] text-white flex flex-col justify-center px-8">
 
         <h1 className="text-2xl font-bold text-orange-400 mb-6 tracking-wide">
@@ -60,8 +65,11 @@ alert(err.response?.data?.msg);
             handleLogin();
           }}
         >
+
           {/* EMAIL */}
           <input
+            type="email"
+            autoComplete="username"
             placeholder="Enter your email"
             className="w-full mb-4 p-3 rounded bg-[#2a2640] outline-none focus:ring-2 focus:ring-orange-400"
             value={form.email}
@@ -72,18 +80,19 @@ alert(err.response?.data?.msg);
 
           {/* PASSWORD */}
           <input
-  type="password"
-  placeholder="Enter password"
-  autoComplete="current-password"
-  className="w-full mb-4 p-3 rounded bg-[#2a2640] outline-none focus:ring-2 focus:ring-orange-400"
-  value={form.password}
-  onChange={(e) =>
-    setForm({ ...form, password: e.target.value })
-  }
-/>
+            type="password"
+            autoComplete="current-password"
+            placeholder="Enter password"
+            className="w-full mb-4 p-3 rounded bg-[#2a2640] outline-none focus:ring-2 focus:ring-orange-400"
+            value={form.password}
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+          />
 
           {/* BUTTON */}
           <button
+            type="submit"
             disabled={loading}
             className={`w-full py-3 rounded transition ${
               loading
@@ -93,6 +102,7 @@ alert(err.response?.data?.msg);
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+
         </form>
 
         {/* LINKS */}
@@ -105,12 +115,12 @@ alert(err.response?.data?.msg);
 
       </div>
 
-      {/* RIGHT SIDE */}
+      {/* RIGHT PANEL */}
       <div
         className="flex-1 bg-cover bg-center"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1498050108023-c5249f4df085')"
+            "url('https://images.unsplash.com/photo-1498050108023-c5249f4df085')",
         }}
       ></div>
 
