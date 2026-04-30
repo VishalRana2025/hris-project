@@ -27,6 +27,15 @@ export default function Org() {
   const [subTab, setSubTab] = useState("legal");
 
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role"); // ✅ ADD THIS
+
+  if (role !== "admin") {
+  return (
+    <div className="flex items-center justify-center h-screen text-red-500 text-xl">
+      Unauthorized 🚫
+    </div>
+  );
+}
 
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -40,6 +49,8 @@ export default function Org() {
   const [showPopup, setShowPopup] = useState(true);
 
   const fetchEmployees = async () => {
+      if (role !== "admin") return; // ✅ safety
+
   try {
     const res = await getEmployees(token);
     setEmployees(res?.data || []);
@@ -72,9 +83,12 @@ export default function Org() {
   };
 
   useEffect(() => {
-    fetchData();
-     fetchEmployees();
-  }, [subTab]);
+  fetchData();
+
+  if (role === "admin") {
+    fetchEmployees(); 
+  }
+}, [subTab, role]);
 
 
    useEffect(() => {

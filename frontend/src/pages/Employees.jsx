@@ -10,7 +10,15 @@ import {
 
 export default function Employees() {
   const token = localStorage.getItem("token");
-
+  const role = localStorage.getItem("role"); // 👈 ADD
+   // 👇 ADD THIS BLOCK
+if (role !== "admin") {
+  return (
+    <div className="flex items-center justify-center h-screen text-red-500 text-xl">
+      Access Denied 🚫
+    </div>
+  );
+}
   const [employees, setEmployees] = useState([]);
   const [editEmp, setEditEmp] = useState(null);
 
@@ -27,8 +35,10 @@ const fetchEmployees = async () => {
 };
 
 useEffect(() => {
-  fetchEmployees();
-}, []);
+  if (role === "admin") {
+    fetchEmployees();
+  }
+}, [role]);
 
 // DELETE
 const handleDelete = async (id) => {
