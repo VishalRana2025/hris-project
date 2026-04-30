@@ -16,7 +16,10 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const res = await login(form);
+      const res = await login({
+  email: form.email.toLowerCase().trim(),
+  password: form.password
+});
 
       // 🔥 SAVE DATA
       localStorage.setItem("token", res.data.token);
@@ -31,7 +34,8 @@ export default function Login() {
       }
 
     } catch (err) {
-      alert(err.response?.data?.msg || "Login failed ❌");
+      console.log("ERROR:", err.response?.data);
+alert(err.response?.data?.msg);
     } finally {
       setLoading(false);
     }
@@ -69,14 +73,15 @@ export default function Login() {
 
           {/* PASSWORD */}
           <input
-            type="password"
-            placeholder="Enter password"
-            className="w-full mb-4 p-3 rounded bg-[#2a2640] outline-none focus:ring-2 focus:ring-orange-400"
-            value={form.password}
-            onChange={(e) =>
-              setForm({ ...form, password: e.target.value })
-            }
-          />
+  type="password"
+  placeholder="Enter password"
+  autoComplete="current-password"
+  className="w-full mb-4 p-3 rounded bg-[#2a2640] outline-none focus:ring-2 focus:ring-orange-400"
+  value={form.password}
+  onChange={(e) =>
+    setForm({ ...form, password: e.target.value })
+  }
+/>
 
           {/* BUTTON */}
           <button

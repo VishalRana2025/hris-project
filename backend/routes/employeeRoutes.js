@@ -41,32 +41,43 @@ router.get("/", auth, async (req, res) => {
 // ✅ CREATE EMPLOYEE (NO DUPLICATE)
 router.post("/", auth, async (req, res) => {
   try {
-    // 🔒 ONLY ADMIN
     if (req.user.role !== "admin") {
       return res.status(403).json({ msg: "Access denied" });
     }
 
-    const { email } = req.body;
+    const workEmail = req.body.workEmail?.toLowerCase().trim();
+    const personalEmail = req.body.personalEmail?.toLowerCase().trim();
 
-    // 🔥 🔥 PASTE HERE (IMPORTANT)
-    const existing = await Employee.findOne({ email });
+    // 🔥 CHECK DUPLICATE (ALL CASES)
+    const existing = await Employee.findOne({
+      $or: [
+        { email: workEmail },
+        { workEmail: workEmail },
+        { personalEmail: workEmail },
+
+        { email: personalEmail },
+        { workEmail: personalEmail },
+        { personalEmail: personalEmail }
+      ]
+    });
 
     if (existing) {
       return res.status(400).json({
-        msg: "Employee already exists"
+        msg: "Email already used. Use different email."
       });
     }
 
-    // ✅ CREATE EMPLOYEE
     const emp = await Employee.create({
       ...req.body,
+      email: workEmail, // 🔥 PRIMARY LOGIN EMAIL
+      workEmail,
+      personalEmail,
       isRegistered: false
     });
 
     res.json(emp);
 
   } catch (err) {
-    console.log("CREATE ERROR:", err);
     res.status(500).json({ msg: err.message });
   }
 });

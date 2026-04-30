@@ -4,22 +4,28 @@ const jwt = require("jsonwebtoken");
 const Employee = require("../models/Employee");
 
 
-// 🔥 REGISTER (ACTIVATE EXISTING EMPLOYEE)
+// 🔥 REGISTER (FIXED)
 router.post("/register", async (req, res) => {
   try {
-    console.log("REGISTER BODY:", req.body);
+    let { email, password } = req.body;
 
-    const { email, password } = req.body;
+    // ✅ NORMALIZE EMAIL
+    email = email.toLowerCase().trim();
 
-    // ✅ VALIDATION
     if (!email || !password) {
       return res.status(400).json({
         msg: "Email & password required"
       });
     }
 
-    // 🔍 FIND EMPLOYEE (NOT USER)
-    const emp = await Employee.findOne({ email });
+    // 🔥 FIX: SEARCH USING ALL EMAILS
+    const emp = await Employee.findOne({
+      $or: [
+        { email },
+        { workEmail: email },
+        { personalEmail: email }
+      ]
+    });
 
     if (!emp) {
       return res.status(400).json({
@@ -27,7 +33,6 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 🚫 PREVENT DUPLICATE REGISTRATION
     if (emp.isRegistered) {
       return res.status(400).json({
         msg: "Already registered. Please login."
@@ -37,7 +42,6 @@ router.post("/register", async (req, res) => {
     // 🔐 HASH PASSWORD
     const hashed = await bcrypt.hash(password, 10);
 
-    // ✅ UPDATE SAME RECORD (NO NEW USER)
     emp.password = hashed;
     emp.isRegistered = true;
 
@@ -54,28 +58,39 @@ router.post("/register", async (req, res) => {
 });
 
 
-// 🔥 LOGIN (USING EMPLOYEE MODEL)
+// 🔥 LOGIN (ALREADY GOOD, JUST NORMALIZE EMAIL)
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
-    // ✅ VALIDATION
+    email = email.toLowerCase().trim();
+
     if (!email || !password) {
       return res.status(400).json({
         msg: "Email & password required"
       });
     }
 
-    // 🔍 FIND EMPLOYEE
-    const user = await Employee.findOne({ email });
+    const user = await Employee.findOne({
+      $or: [
+        { email },
+        { workEmail: email },
+        { personalEmail: email }
+      ]
+    });
 
-    if (!user || !user.password) {
+    if (!user) {
       return res.status(400).json({
-        msg: "Invalid credentials"
+        msg: "User not found"
       });
     }
 
-    // 🔐 CHECK PASSWORD
+    if (!user.password) {
+      return res.status(400).json({
+        msg: "Please register first"
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -84,7 +99,6 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // 🔑 GENERATE TOKEN (IMPORTANT: INCLUDE EMAIL)
     const token = jwt.sign(
       {
         id: user._id,
@@ -95,7 +109,6 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    // ✅ RESPONSE
     res.json({
       token,
       role: user.role,

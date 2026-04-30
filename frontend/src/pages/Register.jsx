@@ -8,16 +8,31 @@ export default function Register() {
     password: ""
   });
 
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleRegister = async () => {
+    // 🔥 VALIDATION
+    if (!form.email || !form.password) {
+      return alert("Email & Password required ⚠️");
+    }
+
     try {
-      await register(form);
+      setLoading(true);
+
+      await register({
+        email: form.email.toLowerCase().trim(), // 🔥 normalize
+        password: form.password
+      });
 
       alert("Signup successful ✅");
       navigate("/");
+
     } catch (err) {
       alert(err.response?.data?.msg || "Signup failed ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,9 +57,9 @@ export default function Register() {
           }}
         >
 
-          {/* 🔥 EMAIL ONLY */}
+          {/* EMAIL */}
           <input
-            placeholder="Enter your official email"
+            placeholder="Enter work or personal email"
             className="w-full mb-4 p-3 rounded bg-[#2a2640]"
             value={form.email}
             onChange={(e) =>
@@ -52,10 +67,11 @@ export default function Register() {
             }
           />
 
-          {/* 🔥 PASSWORD */}
+          {/* PASSWORD */}
           <input
             type="password"
             placeholder="Create password"
+            autoComplete="new-password"
             className="w-full mb-4 p-3 rounded bg-[#2a2640]"
             value={form.password}
             onChange={(e) =>
@@ -63,14 +79,21 @@ export default function Register() {
             }
           />
 
-          <button className="w-full bg-orange-500 py-3 rounded hover:bg-orange-600 transition">
-            Register
+          <button
+            disabled={loading}
+            className={`w-full py-3 rounded transition ${
+              loading
+                ? "bg-gray-500"
+                : "bg-orange-500 hover:bg-orange-600"
+            }`}
+          >
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
-        {/* INFO MESSAGE */}
+        {/* INFO */}
         <p className="mt-4 text-xs text-gray-400">
-          ⚠️ You can only register if your email is already added by admin.
+          ⚠️ Use your registered work or personal email added by admin.
         </p>
 
         <p className="mt-4 text-sm">

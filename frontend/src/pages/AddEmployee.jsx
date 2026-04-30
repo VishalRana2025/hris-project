@@ -80,7 +80,7 @@ const [form, setForm] = useState({
     ...form,
 
     // 🔥 IMPORTANT: fallback logic
-    email: form.email || form.workEmail || form.personalEmail,
+    email: form.workEmail.toLowerCase().trim(),
 
     fullName:
       form.fullName ||
@@ -102,8 +102,8 @@ const [form, setForm] = useState({
 
   const handleSubmit = async () => {
     try {
-     if (!form.firstName || !form.email) {
-  return alert("First Name & Login Email required");
+     if (!form.firstName || !form.workEmail) {
+  return alert("First Name & Work Email required");
 }
 
       const payload = prepareData();
@@ -135,11 +135,7 @@ const [form, setForm] = useState({
 
             {/* PRIMARY DETAILS */}
             <Section title="Primary Details">
-              <Input
-  label="Login Email (Required)"
-  value={form.email}
-  onChange={(v) => setForm({ ...form, email: v })}
-/>
+              
               <Input label="Employee Number" value={form.employeeNumber}
                 onChange={(v) => setForm({ ...form, employeeNumber: v })}
               />
