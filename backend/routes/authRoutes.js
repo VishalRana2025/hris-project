@@ -2,15 +2,16 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Employee = require("../models/Employee");
+console.log("🔥 AUTH ROUTE FILE LOADED");
 
 
-// 🔥 REGISTER (FIXED)
+// ================= REGISTER =================
+// ================= REGISTER =================
 router.post("/register", async (req, res) => {
   try {
     let { email, password } = req.body;
 
-    // ✅ NORMALIZE EMAIL
-    email = email.toLowerCase().trim();
+    email = email?.toLowerCase().trim();
 
     if (!email || !password) {
       return res.status(400).json({
@@ -18,52 +19,42 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 🔥 FIX: SEARCH USING ALL EMAILS
-    const emp = await Employee.findOne({
-      $or: [
-        { email },
-        { workEmail: email },
-        { personalEmail: email }
-      ]
-    });
+    const emp = await Employee.findOne({ email });
 
     if (!emp) {
       return res.status(400).json({
-        msg: "Employee not found. Contact admin."
+        msg: "Employee not found"
       });
     }
 
-    if (emp.isRegistered) {
+    if (emp.password) {
       return res.status(400).json({
-        msg: "Already registered. Please login."
+        msg: "Already registered"
       });
     }
 
-    // 🔐 HASH PASSWORD
-    const hashed = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    emp.password = hashed;
+    emp.password = hashedPassword;
     emp.isRegistered = true;
 
     await emp.save();
 
-    res.json({
-      msg: "Registered successfully ✅"
-    });
+    res.json({ msg: "Registered successfully ✅" });
 
   } catch (err) {
-    console.log("REGISTER ERROR:", err);
+    console.log(err);
     res.status(500).json({ msg: "Server error" });
   }
 });
 
 
-// 🔥 LOGIN (ALREADY GOOD, JUST NORMALIZE EMAIL)
+// ================= LOGIN =================
 router.post("/login", async (req, res) => {
   try {
     let { email, password } = req.body;
 
-    email = email.toLowerCase().trim();
+    email = email?.toLowerCase().trim();
 
     if (!email || !password) {
       return res.status(400).json({
@@ -71,23 +62,19 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    console.log("🔥 LOGIN RUNNING:", email);
+
     const user = await Employee.findOne({
-      $or: [
-        { email },
-        { workEmail: email },
-        { personalEmail: email }
-      ]
+      email,
+      password: { $ne: null }
     });
 
+    console.log("FINAL USER:", user);
+
+    // ✅ IMPORTANT FIX
     if (!user) {
       return res.status(400).json({
-        msg: "User not found"
-      });
-    }
-
-    if (!user.password) {
-      return res.status(400).json({
-        msg: "Please register first"
+        msg: "User not found or not registered"
       });
     }
 

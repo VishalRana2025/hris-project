@@ -34,13 +34,16 @@ export default function Login() {
       navigate("/dashboard");
 
     } catch (err) {
-      console.error("LOGIN ERROR:", err?.response?.data);
+  console.error("FULL ERROR:", err);
+  console.error("STATUS:", err?.response?.status);
+  console.error("DATA:", err?.response?.data);
 
-      alert(
-        err?.response?.data?.msg ||
-        "Login failed. Please try again."
-      );
-    } finally {
+  alert(
+    err?.response?.data?.msg ||
+    err.message ||
+    "Login failed. Please try again."
+  );
+} finally {
       setLoading(false);
     }
   };

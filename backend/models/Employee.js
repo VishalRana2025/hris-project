@@ -7,23 +7,51 @@ const addressSchema = new mongoose.Schema(
     city: String,
     state: String,
     country: String,
-    zipCode: String
+    zipCode: String,
   },
   { _id: false }
 );
 
 const employeeSchema = new mongoose.Schema(
   {
-    // 🔥 MAIN LINK FIELD (LOGIN MATCH)
+    // 🔥 MAIN LOGIN FIELD
     email: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
+      lowercase: true,
+      trim: true,
     },
 
-    // 🔥 EMAILS
-    personalEmail: String,
-    workEmail: String,
+    // 🔥 ADDITIONAL EMAILS
+    personalEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+    },
+
+    workEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+    },
+
+    // 🔐 AUTH FIELDS (CRITICAL FIX)
+    password: {
+      type: String,
+      default: null,
+    },
+
+    isRegistered: {
+      type: Boolean,
+      default: false,
+    },
+
+    role: {
+      type: String,
+      enum: ["employee", "admin"],
+      default: "employee",
+    },
 
     // 🔥 BASIC INFO
     employeeNumber: String,
@@ -53,15 +81,15 @@ const employeeSchema = new mongoose.Schema(
 
     mobilePhone: String,
 
-    // 🔥 ADDRESS
+    // 📍 ADDRESS
     currentAddress: addressSchema,
     permanentAddress: addressSchema,
 
-    // 🔥 ID DETAILS
+    // 🪪 ID DETAILS
     aadhaarNumber: String,
     panNumber: String,
 
-    cabFacility: Boolean
+    cabFacility: Boolean,
   },
   { timestamps: true }
 );
